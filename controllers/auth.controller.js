@@ -77,6 +77,23 @@ router.get('/current', (req, res) => {
     });
 });
 
+router.get('/users', (req, res) => {
+    User.find((err, users) => {
+        if(err)
+            return res.status(500).json({ Message: 'There was a problem finding the users.' });
+
+        const usersOutput = users.map(user => {
+            return {
+                Id: user._id,
+                Name: user.Name,
+                Books: user.Books
+            };
+        });
+
+        return res.status(200).json(usersOutput);
+    });
+});
+
 router.get('/user/:userId', (req, res) => {
     User.findById(req.params.userId, (err, user) => {
         if(err)
