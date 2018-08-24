@@ -24,12 +24,53 @@ router.post('/register', (req, res) => {
     }, (err, user) => {
         if(err){
             res.status(500).json({
+                Auth: false,
                 Message: 'There was a problem registering the user.'
             });
         }
 
         const token = jwt.sign({ id: user._id }, config.secret);
-        res.status(201).json({ auth: true, token: token });
+        res.status(201).json({ Auth: true, Token: token });
+    });
+});
+
+router.get('/current', (req, res) => {
+    const token = req.headers['x-access-token'];
+    if(!token){
+        res.status(401).json({
+            Auth: false,
+            Message: 'No token provided.'
+        });
+    }
+
+    jwt.verify(token, config.secret, (err, data) => {
+        if(err){
+            res.status(500).json({
+                Auth: false,
+                Message: 'Failed to authenticate token.'
+            });
+        }
+
+        User.findById(data.id, (err, user) => {
+            if(err){
+                res.status(500).json({
+                    Auth: false,
+                    Message: 'There was a problem finding the user.'
+                });
+            }
+
+            if(!user){
+                res.status(404).json({
+                    Auth: false,
+                    Message: 'No user found.'
+                });
+            }
+
+            res.status(200).json({
+                Auth: true,
+                User: user
+            });
+        });
     });
 });
 
