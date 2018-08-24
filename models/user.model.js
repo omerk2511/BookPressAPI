@@ -25,6 +25,6 @@ const userSchema = mongoose.Schema({
     },
     Books: [mongoose.Schema.Types.ObjectId]
 });
-userSchema.plugin(uniqueValidator);
+userSchema.plugin(uniqueValidator, { message: 'Error, expected {PATH} to be unique.' });
 
 module.exports = mongoose.model('User', userSchema);

@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/register', (req, res) => {
     if(!req.body.Name || !req.body.Email || !req.body.Password){
-        res.status(400).json({
+        return res.status(400).json({
             Message: 'You must enter all fields.'
         });
     }
@@ -23,21 +23,21 @@ router.post('/register', (req, res) => {
         Password: hashedPassword
     }, (err, user) => {
         if(err){
-            res.status(500).json({
+            return res.status(500).json({
                 Auth: false,
                 Message: 'There was a problem registering the user.'
             });
         }
 
         const token = jwt.sign({ id: user._id }, config.secret);
-        res.status(201).json({ Auth: true, Token: token });
+        return res.status(201).json({ Auth: true, Token: token });
     });
 });
 
 router.get('/current', (req, res) => {
     const token = req.headers['x-access-token'];
     if(!token){
-        res.status(401).json({
+        return res.status(401).json({
             Auth: false,
             Message: 'No token provided.'
         });
@@ -45,7 +45,7 @@ router.get('/current', (req, res) => {
 
     jwt.verify(token, config.secret, (err, data) => {
         if(err){
-            res.status(500).json({
+            return res.status(500).json({
                 Auth: false,
                 Message: 'Failed to authenticate token.'
             });
@@ -53,20 +53,20 @@ router.get('/current', (req, res) => {
 
         User.findById(data.id, (err, user) => {
             if(err){
-                res.status(500).json({
+                return res.status(500).json({
                     Auth: false,
                     Message: 'There was a problem finding the user.'
                 });
             }
 
             if(!user){
-                res.status(404).json({
+                return res.status(404).json({
                     Auth: false,
                     Message: 'No user found.'
                 });
             }
 
-            res.status(200).json({
+            return res.status(200).json({
                 Auth: true,
                 Id: user._id,
                 Name: user.Name,
@@ -80,12 +80,12 @@ router.get('/current', (req, res) => {
 router.get('/user/:userId', (req, res) => {
     User.findById(req.params.userId, (err, user) => {
         if(err)
-            res.status(500).json({ Message: 'There was a problem finding the user.' });
+            return res.status(500).json({ Message: 'There was a problem finding the user.' });
 
         if(!user)
-            res.status(404).json({ Message: 'No user found.' });
+            return res.status(404).json({ Message: 'No user found.' });
 
-        res.status(200).json({
+        return res.status(200).json({
             Id: user._id,
             Name: user.Name,
             Books: user.Books
