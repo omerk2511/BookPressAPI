@@ -9,6 +9,12 @@ const express = require('express');
 const router = express.Router();
 
 router.post('/register', (req, res) => {
+    if(!req.body.Name || !req.body.Email || !req.body.Password){
+        res.status(400).json({
+            Message: 'You must enter all fields.'
+        });
+    }
+
     const hashedPassword = bcrypt.hashSync(req.body.Password, 8);
 
     User.create({
