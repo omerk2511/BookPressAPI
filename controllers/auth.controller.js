@@ -68,8 +68,27 @@ router.get('/current', (req, res) => {
 
             res.status(200).json({
                 Auth: true,
-                User: user
+                Id: user._id,
+                Name: user.Name,
+                Email: user.Email,
+                Books: user.Books
             });
+        });
+    });
+});
+
+router.get('/user/:userId', (req, res) => {
+    User.findById(req.params.userId, (err, user) => {
+        if(err)
+            res.status(500).json({ Message: 'There was a problem finding the user.' });
+
+        if(!user)
+            res.status(404).json({ Message: 'No user found.' });
+
+        res.status(200).json({
+            Id: user._id,
+            Name: user.Name,
+            Books: user.Books
         });
     });
 });
