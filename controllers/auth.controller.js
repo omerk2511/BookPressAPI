@@ -11,6 +11,7 @@ const router = express.Router();
 router.post('/register', (req, res) => {
     if(!req.body.Name || !req.body.Email || !req.body.Password){
         return res.status(400).json({
+            Auth: false,
             Message: 'You must enter all fields.'
         });
     }
@@ -31,6 +32,38 @@ router.post('/register', (req, res) => {
 
         const token = jwt.sign({ id: user._id }, config.secret);
         return res.status(201).json({ Auth: true, Token: token });
+    });
+});
+
+router.post('/login', (req, res) => {
+    if(!req.body.Email || !req.body.Password){
+        return res.status(400).json({
+            Auth: false,
+            Message: 'You must enter all fields.'
+        });
+    }
+
+    User.findOne({ Email: req.body.Email }, (err, user) => {
+        if(err){
+            return res.status(500).json({
+                Auth: false,
+                Message: 'There was a problem finding the user.' 
+            });
+        }
+
+        if(!user){
+            return res.status(404).json({
+                Auth: false,
+                Message: 'No user found.'
+            });
+        }
+
+        const isPasswordValid = bcrypt.compareSync(req.body.Password, user.Password);
+        if(!isPasswordValid)
+            return res.status(401).json({ Auth: false, Token: null });
+    
+        const token = jwt.sign({ id: user._id }, config.secret);
+        return res.status(200).json({ Auth: true, Token: token });
     });
 });
 
@@ -67,7 +100,6 @@ router.get('/current', (req, res) => {
             }
 
             return res.status(200).json({
-                Auth: true,
                 Id: user._id,
                 Name: user.Name,
                 Email: user.Email,
