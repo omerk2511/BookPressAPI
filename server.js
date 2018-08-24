@@ -20,9 +20,8 @@ mongoose.connect(db.url,  {
     process.exit();
 });
 
-app.get('/', (req, res) => {
-    res.status(200).json({ message: 'Some initial stuff' });
-});
+const auth = require('./controllers/auth.controller');
+app.use('/api/auth', auth);
 
 app.listen(8080, () => {
     console.log('Listening on port 8080');
