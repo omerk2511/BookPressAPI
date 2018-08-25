@@ -107,6 +107,7 @@ router.get('/current', (req, res) => {
                     Email: user.Email,
                     Books: books.map(book => {
                         return {
+                            Id: book._id,
                             Title: book.Title,
                             SubTitle: book.SubTitle,
                             ImageURL: book.ImageURL,
@@ -134,6 +135,7 @@ router.get('/users', (req, res) => {
                         Name: user.Name,
                         Books: books.map(book => {
                             return {
+                                Id: book._id,
                                 Title: book.Title,
                                 SubTitle: book.SubTitle,
                                 ImageURL: book.ImageURL,
@@ -170,6 +172,7 @@ router.get('/user/:userId', (req, res) => {
                 Name: user.Name,
                 Books: books.map(book => {
                     return {
+                        Id: book._id,
                         Title: book.Title,
                         SubTitle: book.SubTitle,
                         ImageURL: book.ImageURL,
