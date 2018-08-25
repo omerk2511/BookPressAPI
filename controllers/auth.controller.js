@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Book = require('../models/book.model');
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -99,11 +100,23 @@ router.get('/current', (req, res) => {
                 });
             }
 
-            return res.status(200).json({
-                Id: user._id,
-                Name: user.Name,
-                Email: user.Email,
-                Books: user.Books
+            Book.find({ _id: { $in: user.Books } }, (err2, books) => {
+                return res.status(200).json({
+                    Id: user._id,
+                    Name: user.Name,
+                    Email: user.Email,
+                    Books: books.map(book => {
+                        return {
+                            Id: book._id,
+                            Title: book.Title,
+                            SubTitle: book.SubTitle,
+                            ImageURL: book.ImageURL,
+                            Categories: book.Categories,
+                            Authors: book.Authors,
+                            ISBN: book.ISBN
+                        };
+                    })
+                });
             });
         });
     });
@@ -114,15 +127,34 @@ router.get('/users', (req, res) => {
         if(err)
             return res.status(500).json({ Message: 'There was a problem finding the users.' });
 
-        const usersOutput = users.map(user => {
-            return {
-                Id: user._id,
-                Name: user.Name,
-                Books: user.Books
-            };
-        });
+        const getBooks = (user) => {
+            return new Promise(resolve => {
+                Book.find({ _id: { $in: user.Books } }, (err2, books) => {
+                    resolve({
+                        Id: user._id,
+                        Name: user.Name,
+                        Books: books.map(book => {
+                            return {
+                                Id: book._id,
+                                Title: book.Title,
+                                SubTitle: book.SubTitle,
+                                ImageURL: book.ImageURL,
+                                Categories: book.Categories,
+                                Authors: book.Authors,
+                                ISBN: book.ISBN
+                            };
+                        })
+                    });
+                }); 
+            });
+        };
 
-        return res.status(200).json(usersOutput);
+        const usersOutput = users.map(getBooks);
+        const usersResult = Promise.all(usersOutput);
+
+        usersResult.then(data => {
+            return res.status(200).json(data);
+        });
     });
 });
 
@@ -133,11 +165,23 @@ router.get('/user/:userId', (req, res) => {
 
         if(!user)
             return res.status(404).json({ Message: 'No user found.' });
-
-        return res.status(200).json({
-            Id: user._id,
-            Name: user.Name,
-            Books: user.Books
+        
+        Book.find({ _id: { $in: user.Books } }, (err2, books) => {
+            return res.status(200).json({
+                Id: user._id,
+                Name: user.Name,
+                Books: books.map(book => {
+                    return {
+                        Id: book._id,
+                        Title: book.Title,
+                        SubTitle: book.SubTitle,
+                        ImageURL: book.ImageURL,
+                        Categories: book.Categories,
+                        Authors: book.Authors,
+                        ISBN: book.ISBN
+                    };
+                })
+            });
         });
     });
 });

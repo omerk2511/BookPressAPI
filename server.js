@@ -23,6 +23,9 @@ mongoose.connect(db.url,  {
 const auth = require('./controllers/auth.controller');
 app.use('/api/auth', auth);
 
+const books = require('./controllers/books.controller');
+app.use('/api/books', books);
+
 app.listen(8080, () => {
     console.log('Listening on port 8080');
 });
