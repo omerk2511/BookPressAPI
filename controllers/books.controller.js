@@ -57,4 +57,13 @@ router.post('/', verifyToken, (req, res, next) => {
     });
 });
 
+router.delete('/:bookId', verifyToken, (req, res) => {
+    Book.deleteOne({ _id: req.params.bookId }, (err) => {
+        if(err)
+            return res.status(500).json({ Message: 'There was a problem removing the user.' });
+
+        return res.status(204).json(); 
+    });
+});
+
 module.exports = router;
